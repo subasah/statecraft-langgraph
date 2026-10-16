@@ -20,30 +20,63 @@ It bridges the gap between toy linear chains and production autonomous systems b
 
 ## 🏗️ System Architecture
 
-```mermaid
-flowchart TD
-    START([User Ticket Ingest]) --> Triage[1. Triage & Risk Branching]
-    Triage -->|Risk Assessment| Router{Risk Tier}
-    
-    Router -->|TIER_1: Standard| FastTrack[Standard Prep]
-    Router -->|TIER_2/3: High Risk| ResilientFetch[2. Resilient SecOps Fetch<br/><i>Exponential Retries</i>]
-    
-    ResilientFetch --> SpecGen[3. Spec & Code Synthesis]
-    FastTrack --> SpecGen
-    
-    SpecGen --> Evaluator[4. Evaluator-Optimizer<br/><i>AST & Unit Test Sandbox</i>]
-    Evaluator -->|Fails & iter < max| SpecGen
-    Evaluator -->|Passes| GovGate{Human Signoff Needed?}
-    
-    GovGate -->|TIER_1 Standard| Deploy[6. Production Deployment]
-    GovGate -->|TIER_2/3 Elevated| Checkpoint[5. HITL Checkpoint<br/><b>interrupt()</b>]
-    
-    Checkpoint -->|<Human Review Decision>| Verdict{Approved?}
-    Verdict -->|Approve / Edit| Deploy
-    Verdict -->|Reject| Abort[Incident Aborted & Logged]
-    
-    Deploy --> END([Release Live in Production])
-    Abort --> END
+```text
+                       ┌────────────────────────────┐
+                       │     User Ticket Ingest     │
+                       └─────────────┬──────────────┘
+                                     ▼
+                       ┌────────────────────────────┐
+                       │ 1. Triage & Risk Branching │
+                       └─────────────┬──────────────┘
+                                     │ Risk Assessment
+                                     ▼
+                             ◆───────────────◆
+                            ╱    Risk Tier    ╲
+                           ◆─────────┬─────────◆
+                 TIER_1: Standard    │    TIER_2/3: High Risk
+                   ┌─────────────────┴─────────────────┐
+                   ▼                                   ▼
+     ┌───────────────────────────┐       ┌───────────────────────────┐
+     │       Standard Prep       │       │ 2. Resilient SecOps Fetch │
+     └─────────────┬─────────────┘       │   (Exponential Retries)   │
+                   │                     └─────────────┬─────────────┘
+                   └─────────────────┬─────────────────┘
+                                     ▼
+  ┌───────────────►    ┌────────────────────────────┐
+  │                    │ 3. Spec & Code Synthesis   │
+  │                    └─────────────┬──────────────┘
+  │                                  ▼
+  │ Fails              ┌────────────────────────────┐
+  │ (iter < max)       │   4. Evaluator-Optimizer   │
+  └────────────────────┤ (AST & Unit Test Sandbox)  │
+                       └─────────────┬──────────────┘
+                                     │ Passes
+                                     ▼
+                          ◆─────────────────────◆
+                         ╱ Human Signoff Needed? ╲
+                        ◆────────────┬────────────◆
+              TIER_1 Standard        │        TIER_2/3 Elevated
+                   ┌─────────────────┴─────────────────┐
+                   │                                   ▼
+                   │                     ┌───────────────────────────┐
+                   │                     │    5. HITL Checkpoint     │
+                   │                     │        interrupt()        │
+                   │                     └─────────────┬─────────────┘
+                   │                                   │ Human Review
+                   │                                   ▼
+                   │                            ◆─────────────◆
+                   │      Approve / Edit       ╱   Approved?   ╲
+                   ├──────────────────────────◆────────┬────────◆
+                   ▼                                   │ Reject
+     ┌───────────────────────────┐                     ▼
+     │ 6. Production Deployment  │       ┌───────────────────────────┐
+     └─────────────┬─────────────┘       │ Incident Aborted & Logged │
+                   │                     └─────────────┬─────────────┘
+                   └─────────────────┬─────────────────┘
+                                     ▼
+                       ┌────────────────────────────┐
+                       │ Release Live in Production │
+                       └────────────────────────────┘
 ```
 
 ---
