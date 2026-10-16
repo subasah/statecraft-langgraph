@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statecraft-langgraph"
+version = "1.0.0"
+description = "Production-grade stateful agentic workflows & multi-pattern orchestration engine with LangGraph and LangChain"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "StateCraft Team" }
+]
+keywords = [
+    "langgraph",
+    "langchain",
+    "agentic-workflows",
+    "stateful-agents",
+    "human-in-the-loop",
+    "self-correction",
+    "multi-agent",
+    "orchestration"
+]
+dependencies = [
+    "langgraph>=1.2.0",
+    "langchain>=1.4.0",
+    "langchain-core>=1.6.0",
+    "langchain-community>=0.4.0",
+    "pydantic>=2.10.0",
+    "rich>=14.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "streamlit>=1.40.0",
+    "python-dotenv>=1.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0"
+]
+
+[project.optional-dependencies]
+providers = [
+    "langchain-openai>=1.7.0",
+    "langchain-google-genai>=4.4.0"
+]
+dev = [
+    "ruff>=0.5.0",
+    "black>=24.4.0",
+    "pytest>=8.0.0"
+]
+
+[project.scripts]
+statecraft = "statecraft.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
